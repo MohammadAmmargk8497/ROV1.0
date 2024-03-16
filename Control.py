@@ -1,6 +1,8 @@
 import pigpio
 import numpy as np
 import pygame
+from PID import PID
+import time
 
 
 
@@ -120,16 +122,26 @@ class Control(Controller):
 
 
 def run():
+    t = 0
+    t_prev = 0
     control = Control(9, 11, 16, 8)
-   
+    Dcontrol = PID()
+    
     con = control.get_controller()
+    Depth = con.getThrottle()
     pi = pigpio.pi()
     while(1):
         con.update()
+        Depth = con.getThrottle()
+        t = time.time()
+        dt = t-t_prev
+        pos = 0 #Get from Depth Sensor
+        sp  = 0 # Get fro Joystick Slider
+        Depth = Dcontrol.compute(pos, sp, dt)
         move = control.map_values(con.getPitch())
         turn = control.sig(con.getPitch())
         
-        if move == 1500:
+        if move & turn == 1500:
             print('static')
 
         elif move != 1500:
@@ -140,7 +152,7 @@ def run():
         elif turn != 1500:
              pi.set_servo_pulsewidth(control.THRUSTER_3, turn)     
              pi.set_servo_pulsewidth(control.THRUSTER_4, turn)     
-
+        t_prev = t
     
     
 if __name__=='__main__' :
