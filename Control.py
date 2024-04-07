@@ -83,7 +83,7 @@ class Control(Controller):
         pi = pigpio.pi()
         for item in thruster_pins:
             pi.set_servo_pulsewidth(item,1500)
-        
+
     def get_controller(self):
 
     # Initialize pygame for joystick support
@@ -108,7 +108,13 @@ class Control(Controller):
         elif value == 0:
             return 1500
         else:
-            return int(1500 + (value * 300))     
+            return int(1500 + (value * 300)) 
+
+    def map_values_depth(self, value):
+        if value < -1 or value > 1:
+            return None
+        else:
+            return int(1700 + (value * 2))     
 
     def sig(value):
         if value < -1 or value > 1:
@@ -122,11 +128,11 @@ class Control(Controller):
 
 
 def run():
-    t = 0
-    t_prev = 0
-    control = Control(9, 11, 16, 8)
-    Dcontrol = PID()
+    # t = 0
+    # t_prev = 0
     
+    # Dcontrol = PID()
+    control = Control(9, 11, 16, 8)
     con = control.get_controller()
     Depth = con.getThrottle()
     pi = pigpio.pi()
@@ -137,21 +143,29 @@ def run():
         dt = t-t_prev
         pos = 0 #Get from Depth Sensor
         sp  = 0 # Get fro Joystick Slider
-        Depth = Dcontrol.compute(pos, sp, dt)
+        # Depth = Dcontrol.compute(pos, sp, dt)
         move = control.map_values(con.getPitch())
-        turn = control.sig(con.getPitch())
+        turn = control.sig(con.getYaw())
+        depth = control.map_values_depth(con.getThrottle())
         
         if move & turn == 1500:
             print('static')
+            pi.set_servo_pulsewidth(control.THRUSTER_3,depth) 
+            pi.set_servo_pulsewidth(control.THRUSTER_4,depth)
 
         elif move != 1500:
              pi.set_servo_pulsewidth(control.THRUSTER_1, move) 
-             pi.set_servo_pulsewidth(control.THRUSTER_2, move) 
-             print(move) 
+             pi.set_servo_pulsewidth(control.THRUSTER_2, move)
+             pi.set_servo_pulsewidth(control.THRUSTER_3,depth) 
+             pi.set_servo_pulsewidth(control.THRUSTER_4,depth) 
+             print("Move : " ,move) 
 
         elif turn != 1500:
-             pi.set_servo_pulsewidth(control.THRUSTER_3, turn)     
-             pi.set_servo_pulsewidth(control.THRUSTER_4, turn)     
+             pi.set_servo_pulsewidth(control.THRUSTER_1, 1500 + np.abs(turn - 1500) )     
+             pi.set_servo_pulsewidth(control.THRUSTER_2, 1500 - np.abs(turn - 1500) ) 
+             pi.set_servo_pulsewidth(control.THRUSTER_3,depth) 
+             pi.set_servo_pulsewidth(control.THRUSTER_4,depth)  
+             print("Turn : " ,turn)   
         t_prev = t
     
     
