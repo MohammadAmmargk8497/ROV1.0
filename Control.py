@@ -3,6 +3,8 @@ import numpy as np
 import pygame
 from PID import PID
 import time
+import threading
+
 
 
 
@@ -127,12 +129,12 @@ class Control(Controller):
         
 
 
-def run():
+def run(control):
     # t = 0
     # t_prev = 0
     
     # Dcontrol = PID()
-    control = Control(9, 11, 16, 8)
+    
     con = control.get_controller()
     Depth = con.getThrottle()
     pi = pigpio.pi()
@@ -168,6 +170,27 @@ def run():
              print("Turn : " ,turn)   
         t_prev = t
     
-    
+def GUI():
+    control = Control(9, 11, 16, 8)
+    con = control.get_controller()
+    while(1):
+        con.update()
+        move = control.map_values(con.getPitch())
+        turn = control.sig(con.getYaw())
+        depth = control.map_values_depth(con.getThrottle())
+        print("Move : " ,move)   
+        print("Turn : " ,turn)   
+        print("Depth : " ,depth)   
+
+
 if __name__=='__main__' :
-    run()
+    control = Control(9, 11, 16, 8)
+   
+    control_thread = threading.Thread(target=run, args=(control))
+    gui_thread = threading.Thread(target=GUI, args=(control))
+
+    control_thread.start()
+    gui_thread.start()
+
+    control_thread.join()
+    gui_thread.join()
