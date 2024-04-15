@@ -3,8 +3,10 @@ import numpy as np
 import pygame
 from PID import PID
 import time
-import threading
-
+import threading 
+import queue
+import socket
+import json
 
 
 
@@ -64,7 +66,7 @@ controllers = {
     '2In1 USB Joystick':
     _GameController((-1, 2, -3, 0), 5),
 
-    'Logitech Extreme 3D':
+    'Logitech Logitech Extreme 3D':
     _GameController((-3, 0, -1, 2), 0),
 }
 
@@ -78,6 +80,7 @@ class Control(Controller):
         self.THRUSTER_2 = THRUSTER_2
         self.THRUSTER_3 = THRUSTER_3
         self.THRUSTER_4 = THRUSTER_4
+        self.control_queue = queue.Queue()
         
         
         thruster_pins = [THRUSTER_1, THRUSTER_2, THRUSTER_3,  THRUSTER_4]
@@ -116,9 +119,9 @@ class Control(Controller):
         if value < -1 or value > 1:
             return None
         else:
-            return int(1700 + (value * 2))     
+            return int(1700 + (value * 200))     
 
-    def sig(value):
+    def sig(self,value):
         if value < -1 or value > 1:
             return None
         elif value == 0:
@@ -140,54 +143,61 @@ def run(control):
     pi = pigpio.pi()
     while(1):
         con.update()
-        Depth = con.getThrottle()
-        t = time.time()
-        dt = t-t_prev
-        pos = 0 #Get from Depth Sensor
-        sp  = 0 # Get fro Joystick Slider
+        #t = time.time()
+        #dt = t-t_prev
+        #pos = 0 #Get from Depth Sensor
+        #sp  = 0 # Get fro Joystick Slider
         # Depth = Dcontrol.compute(pos, sp, dt)
         move = control.map_values(con.getPitch())
         turn = control.sig(con.getYaw())
         depth = control.map_values_depth(con.getThrottle())
+        control.control_queue.put((move, turn, depth))
         
         if move & turn == 1500:
-            print('static')
+            
+            pi.set_servo_pulsewidth(control.THRUSTER_1, 1500) 
+            pi.set_servo_pulsewidth(control.THRUSTER_2, 1500)
             pi.set_servo_pulsewidth(control.THRUSTER_3,depth) 
             pi.set_servo_pulsewidth(control.THRUSTER_4,depth)
+          
 
         elif move != 1500:
              pi.set_servo_pulsewidth(control.THRUSTER_1, move) 
              pi.set_servo_pulsewidth(control.THRUSTER_2, move)
              pi.set_servo_pulsewidth(control.THRUSTER_3,depth) 
              pi.set_servo_pulsewidth(control.THRUSTER_4,depth) 
-             print("Move : " ,move) 
+             
 
         elif turn != 1500:
-             pi.set_servo_pulsewidth(control.THRUSTER_1, 1500 + np.abs(turn - 1500) )     
-             pi.set_servo_pulsewidth(control.THRUSTER_2, 1500 - np.abs(turn - 1500) ) 
+             pi.set_servo_pulsewidth(control.THRUSTER_1, turn)     
+             pi.set_servo_pulsewidth(control.THRUSTER_2, 3000 - turn ) 
              pi.set_servo_pulsewidth(control.THRUSTER_3,depth) 
              pi.set_servo_pulsewidth(control.THRUSTER_4,depth)  
-             print("Turn : " ,turn)   
-        t_prev = t
+             
+        #t_prev = t
+        #time.sleep(0.01)
+def GUI(control):
+    print(GUI)
+    s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET,socket.SO_SNDBUF,1000000)
+
+    server_ip="169.254.88.156"
+    server_port=7777
     
-def GUI():
-    control = Control(9, 11, 16, 8)
-    con = control.get_controller()
-    while(1):
-        con.update()
-        move = control.map_values(con.getPitch())
-        turn = control.sig(con.getYaw())
-        depth = control.map_values_depth(con.getThrottle())
-        print("Move : " ,move)   
-        print("Turn : " ,turn)   
-        print("Depth : " ,depth)   
+    
+    while True:
+        # Get control values from the queue
+        move, turn, depth = control.control_queue.get()
 
-
-if __name__=='__main__' :
+        data=json.dumps({"move" : move , "turn" : turn , "depth" : depth})
+        s.sendto(data.encode(),(server_ip,server_port))
+        print("DATA SENT")
+    
+if __name__ == '__main__':
     control = Control(9, 11, 16, 8)
-   
-    control_thread = threading.Thread(target=run, args=(control))
-    gui_thread = threading.Thread(target=GUI, args=(control))
+
+    control_thread = threading.Thread(target=run, args=(control,))
+    gui_thread = threading.Thread(target=GUI, args=(control,))
 
     control_thread.start()
     gui_thread.start()
