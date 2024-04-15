@@ -1,7 +1,7 @@
 # Remotely Operated Underwater Vehicle
 This is the major project of students of ZHCET, AMU under the aegis of MTS AUV ZHCET Club. This repository is an effort to design the first generation of software for Remotely Operated Underwater Vehicle. The software system can be broken down into two major parts; 1). The Vehicle Side and 2). The Base Station Side.
 
-1. #The Vehicle Side:#
+1. **The Vehicle Side:**
 
    The vehicle side of the program is simple, it does two tasks: generate controls for the thrusters and send feedback data ( camera-feed and generated control values) to be displayed back to BS. It contains the following:
    
@@ -9,7 +9,11 @@ This is the major project of students of ZHCET, AMU under the aegis of MTS AUV Z
    |  
     ------> Control.py  
    |  
-    ------> cam_vehicle.py  
+    ------> cam_vehicle.py
+   * Control.py : This file employs Multithreading in a producer-consumer fashion; here the *GUI* function is the consumer thread and *run*
+                  function as the producer thread. The run function generates the control and pushes their values on the queue. The thread-                    safe queue is then accessed by the GUI function which encodes and transmit the data back to BS using UDP protocol.
+
+   
     
      
 
