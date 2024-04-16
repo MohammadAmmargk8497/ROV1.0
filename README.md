@@ -49,7 +49,7 @@ This is the major project of students of ZHCET, AMU under the aegis of MTS AUV Z
 ### On the client side(rpi):
 0. On RaspberryPi before using Pip first do 
      ```sudo rm /usr/lib/python3.11/EXTERNALLY-MANAGED```
-1. ```wget http://raspbian.mirror.net.in/raspbian/raspbian/pool/main/l/linux/usbip_2.0+5.10.158-2+rpi1_armhf.deb```
+1. ```wget http://raspbian.mirror.net.in/raspbian/raspbian/pool/main/l/linux/usbip_2.0+5.10.158-2+rpi1_armhf.deb```  or ```sudo apt-get install linux-tools-generic hwdata ```
 
 2. ```make the folder executable using chmod +x Folder Name```
 
