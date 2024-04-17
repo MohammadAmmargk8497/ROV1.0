@@ -141,6 +141,8 @@ def run(control):
     con = control.get_controller()
     Depth = con.getThrottle()
     pi = pigpio.pi()
+    print("Starting Control Loop")
+    time.sleep(2)
     while(1):
         con.update()
         #t = time.time()
@@ -178,6 +180,7 @@ def run(control):
         #time.sleep(0.01)
 def GUI(control):
     print(GUI)
+    time.sleep(2)
     s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET,socket.SO_SNDBUF,1000000)
 
