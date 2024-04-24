@@ -17,7 +17,8 @@ This is the major project of students of ZHCET, AMU under the aegis of MTS AUV Z
                   function as the producer thread. The run function generates the control and pushes their values on the queue. The thread-                    safe queue is then accessed by the GUI function which encodes and transmit the data back to BS using UDP protocol.
 
    
-    ![IMG_1469](https://github.com/MohammadAmmargk8497/ROV1.0/assets/75717701/be37869a-4776-456d-9874-9e4583c1c384)
+    ![IMG_1478](https://github.com/MohammadAmmargk8497/ROV1.0/assets/75717701/2c0aec0d-6ce6-47bf-928b-acbea3391c0b)
+
 
      
    * **cam_vehicle.py**: This script uses opencv to capture video frames and send them over to the base station using udp protocol.
