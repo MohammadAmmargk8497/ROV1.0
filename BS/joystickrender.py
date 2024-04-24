@@ -1,20 +1,18 @@
 import random
 import time
+import json
+import os
 
 from rich.live import Live
 from rich.table import Table
-import json
-import os
-import time
 from joysticksocket import s
 
 
-
 def generate_table() -> Table:
-    x=s.recvfrom(1000000)
-    client_ip=x[1][0]
-    data=x[0]
-    data_final=json.loads(data.decode())
+    x = s.recvfrom(1000000)
+    client_ip = x[1][0]
+    data = x[0]
+    data_final = json.loads(data.decode())
     # print(data_final)
 
     table = Table(title="Joystick Control Values")
@@ -25,7 +23,7 @@ def generate_table() -> Table:
     table.add_row("Move", str(data_final['move']))
     table.add_row("Turn", str(data_final['turn']))
     table.add_row("Depth", str(data_final['depth']))
-    
+
     return table
 
 
