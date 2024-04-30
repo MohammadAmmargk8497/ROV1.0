@@ -1,8 +1,7 @@
 import cv2
 import socket
 import pickle
-import os
-import numpy as np
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_ip = "169.254.88.156"

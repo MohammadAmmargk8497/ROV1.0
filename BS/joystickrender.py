@@ -1,8 +1,4 @@
-import random
-import time
 import json
-import os
-
 from rich.live import Live
 from rich.table import Table
 from joysticksocket import s

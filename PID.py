@@ -24,9 +24,6 @@ class PID():
             output = self.saturation_min
         return output
 
-    """
-    consider renaming the variables min and max as they are inbuilt functions in python
-    """
-    def setLims(self, min, max):
-        self.saturation_max = max
-        self.saturation_min = min
+    def setLims(self, minimum, maximum):
+        self.saturation_max = maximum
+        self.saturation_min = minimum
