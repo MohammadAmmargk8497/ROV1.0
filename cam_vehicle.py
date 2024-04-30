@@ -1,8 +1,7 @@
 import cv2
 import socket
 import pickle
-import os
-import numpy as np
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1000000)
