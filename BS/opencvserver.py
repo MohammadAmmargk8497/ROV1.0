@@ -1,10 +1,14 @@
 import cv2
 import socket
 import pickle
-
+import sys
+# Check if IP address is provided as command-line argument
+if len(sys.argv) < 2:
+    print("Error: LAN IP address not provided.")
+    sys.exit(1)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-server_ip = "169.254.88.156"
+server_ip = sys.argv[1]
 server_port = 6666
 s.bind((server_ip, server_port))
 
