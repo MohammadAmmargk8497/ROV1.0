@@ -57,7 +57,7 @@ controllers = {
     '2In1 USB Joystick':
         _GameController((-1, 2, -3, 0), 5),
 
-    'Logitech Logitech Extreme 3D':
+    'Logitech Extreme 3D':
         _GameController((-3, 0, -1, 2), 0),
 
         #Add your own controller here:
@@ -74,7 +74,7 @@ class Control(Controller):
         self.control_queue = queue.Queue() #Thread safe Queue for Producer-Consumer Thread Concurrency
 
         thruster_pins = [THRUSTER_1, THRUSTER_2, THRUSTER_3, THRUSTER_4]
-        thvalue = [1500, 1500, 1500, 1500] ##!!
+        # thvalue = [1500, 1500, 1500, 1500] ##!!
         pi = pigpio.pi()
         for item in thruster_pins:
             pi.set_servo_pulsewidth(item, 1500) #Arming the thrusters for the first time
